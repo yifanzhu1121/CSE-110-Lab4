@@ -1,46 +1,40 @@
-import React, { useState } from "react";
-const AddExpenseForm = () => {
-  // Exercise: Consume the AppContext here
+import React, { useState } from 'react';
+import { useAppContext } from '../../context/AppContext';
+import { createExpense } from '../../utils/expense-utils';
 
-  // Exercise: Create name and cost to state variables
+const AddExpenseForm: React.FC = () => {
+  const { setExpenses } = useAppContext();
+  const [description, setDescription] = useState('');
+  const [cost, setCost] = useState<number>(0);
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    // Exercise: Add add new expense to expenses context array
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newExpense = { id: Date.now().toString(), description, cost };
+    try {
+      const savedExpense = await createExpense(newExpense);
+      setExpenses((prev) => [...prev, savedExpense]); // Update the state with the saved expense from the server
+      setDescription('');
+      setCost(0);
+    } catch (error) {
+      console.error("Failed to create expense:", error);
+    }
   };
 
   return (
-    <form onSubmit={(event) => onSubmit(event)}>
-      <div className="row">
-        <div className="col-sm">
-          <label htmlFor="name">Name</label>
-          <input
-            required
-            type="text"
-            className="form-control"
-            id="name"
-            value={""}
-            // HINT: onChange={}
-          ></input>
-        </div>
-        <div className="col-sm">
-          <label htmlFor="cost">Cost</label>
-          <input
-            required
-            type="text"
-            className="form-control"
-            id="cost"
-            value={0}
-            // HINT: onChange={}
-          ></input>
-        </div>
-        <div className="col-sm">
-          <button type="submit" className="btn btn-primary mt-3">
-            Save
-          </button>
-        </div>
-      </div>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Description"
+      />
+      <input
+        type="number"
+        value={cost}
+        onChange={(e) => setCost(Number(e.target.value))}
+        placeholder="Cost"
+      />
+      <button type="submit">Add Expense</button>
     </form>
   );
 };
