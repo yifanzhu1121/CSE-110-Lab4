@@ -1,21 +1,32 @@
-import { Expense } from "../../types/types";
+import React from 'react';
+import { useAppContext } from '../../context/AppContext';
+import { deleteExpense } from '../../utils/expense-utils';
 
-const ExpenseItem = (currentExpense: Expense) => {
-  // Exercise: Consume the AppContext here
+interface ExpenseItemProps {
+  id: string;
+  description: string;
+  cost: number;
+}
 
-  const handleDeleteExpense = (currentExpense: Expense) => {
-    // Exercise: Remove expense from expenses context array
+const ExpenseItem: React.FC<ExpenseItemProps> = ({ id, description, cost }) => {
+  const { setExpenses } = useAppContext();
+
+  const handleDelete = async () => {
+    try {
+      await deleteExpense(id);
+      setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+    } catch (error) {
+      console.error("Failed to delete expense:", error);
+    }
   };
 
   return (
-    <li className="list-group-item d-flex justify-content-between align-items-center">
-      <div>{currentExpense.name}</div>
-      <div>${currentExpense.cost}</div>
-      <div>
-        <button onClick={() => handleDeleteExpense(currentExpense)}>x</button>
-      </div>
-    </li>
+    <div>
+      <span>{description} - ${cost}</span>
+      <button onClick={handleDelete}>Delete</button>
+    </div>
   );
 };
 
 export default ExpenseItem;
+
