@@ -1,18 +1,31 @@
-import ExpenseItem from "./ExpenseItem";
-import { AppContext } from "../../context/AppContext";
-import { useContext } from "react";
-import { Expense } from "../../types/types";
+import React, { useEffect } from 'react';
+import { useAppContext } from '../../context/AppContext';
+import ExpenseItem from './ExpenseItem';
+import { fetchExpenses } from '../../utils/expense-utils';
 
-const ExpenseList = () => {
-  const { expenses } = useContext(AppContext);
+const ExpenseList: React.FC = () => {
+  const { expenses, setExpenses } = useAppContext();
+
+  useEffect(() => {
+    const loadExpenses = async () => {
+      try {
+        const expenseList = await fetchExpenses();
+        setExpenses(expenseList);
+      } catch (error) {
+        console.error("Failed to load expenses:", error);
+      }
+    };
+    loadExpenses();
+  }, [setExpenses]);
 
   return (
-    <ul className="list-group">
-      {expenses.map((expense: Expense) => (
-        <ExpenseItem id={expense.id} name={expense.name} cost={expense.cost} />
+    <div>
+      {expenses.map((expense) => (
+        <ExpenseItem key={expense.id} {...expense} />
       ))}
-    </ul>
+    </div>
   );
 };
 
 export default ExpenseList;
+
